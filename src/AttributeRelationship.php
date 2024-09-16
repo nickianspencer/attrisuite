@@ -24,7 +24,7 @@ class AttributeRelationship {
      * 
      * @param AttributeInterface $targetAttribute
      */
-    public function addTaretAttribute(AttributeInterface $targetAttribute) {
+    public function addTargetAttribute(AttributeInterface $targetAttribute) {
         $this->targetAttributes[] = $targetAttribute;
     }
 

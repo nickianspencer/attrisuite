@@ -22,7 +22,7 @@ class AttributeManager {
      * @param AttributeSet $attributeSet
      */
     public function addAttributeSet(AttributeSet $attributeSet) {
-        $this->attributes[$attributeSet->getName()] = $attributeSet;
+        $this->attributeSets[$attributeSet->getName()] = $attributeSet;
     }
 
     /**
@@ -60,22 +60,33 @@ class AttributeManager {
      * @param array $data
      * @return bool
      */
-    public function validateAttributes($data): bool {
-        // Validate individual attributes
+    public function validateAttributes(array $data): bool {
         foreach ($this->attributes as $attribute) {
             $name = $attribute->getName();
-            if (isset($data[$name]) && !$attribute->validate($data[$name])) {
-                return false;
+
+            if ($attribute instanceof DependentAttribute) {
+                // Identify the correct parent value
+                $parentAttributeName = $attribute->getParentAttributeName();
+                $parentValue = $data[$parentAttributeName] ?? null;
+
+                // Validate the attribute with the parent value
+                if (!$attribute->validateWithDependencies($parentValue, $data)) {
+                    return false;
+                }
+            } else {
+                if (isset($data[$name]) && !$attribute->validate($data[$name])) {
+                    return false;
+                }
             }
         }
 
-        //Validate attribute relationships
-        foreach($this->relationships as $relationship) {
+        // Validate relationships between attributes
+        foreach ($this->relationships as $relationship) {
             if (!$relationship->validate($data)) {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -86,7 +97,7 @@ class AttributeManager {
      * @param array $data
      * @return bool
      */
-    public function validateAttributesSet($setName, $data): bool {
+    public function validateAttributeSet($setName, $data): bool {
         $attributeSet = $this->getAttributeSet($setName);
         if($attributeSet) {
             return $attributeSet->validateAttributes($data);

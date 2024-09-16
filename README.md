@@ -1,6 +1,10 @@
+### Updated README for **AttriSuite**
+
+---
+
 # AttriSuite
 
-**AttriSuite** is a flexible and powerful PHP library designed for managing product attributes in applications such as Product Information Management (PIM) systems. It provides an extensible framework for handling various types of attributes, attribute sets, complex validation logic, and now, attribute relationships.
+**AttriSuite** is a flexible and powerful PHP library designed for managing product attributes in applications such as Product Information Management (PIM) systems. It provides an extensible framework for handling various types of attributes, attribute sets, complex validation logic, and sophisticated relationships between attributes, including nested or dependent attributes.
 
 ## Features
 
@@ -8,6 +12,7 @@
 - **Attribute Sets**: Group attributes into sets for easier management and validation.
 - **Custom Validation**: Support for custom validation rules to ensure data integrity.
 - **Attribute Relationships**: Define relationships between attributes, allowing for dynamic validation rules based on attribute values.
+- **Dependent Attributes**: Define attributes whose options or validations depend on the values of other attributes, enabling dynamic and contextual data management.
 - **Extensible Design**: Easily extend the library with new attribute types or validation logic.
 - **Namespace Support**: Organized under the `AttriSuite` namespace for easy integration into larger projects.
 
@@ -152,6 +157,46 @@ if ($manager->validateAttributes($dataInvalid)) {
 }
 ```
 
+### Dependent Attributes
+
+Define attributes whose options or validation logic depend on the values of other attributes.
+
+#### Example: Vehicle Model Based on Vehicle Type
+
+Let’s define an example where the options for a "Model" attribute depend on the selected "Vehicle Type."
+
+```php
+use AttriSuite\SelectAttribute;
+use AttriSuite\DependentAttribute;
+use AttriSuite\AttributeManager;
+
+// Define parent attribute
+$vehicleType = new SelectAttribute('vehicle_type', ['Car', 'Motorcycle']);
+
+// Define child attributes dependent on the parent attribute's value
+$carModels = new SelectAttribute('model', ['Sedan', 'SUV', 'Coupe']);
+$motorcycleModels = new SelectAttribute('model', ['Sport', 'Cruiser']);
+
+// Define the dependent attribute
+$model = new DependentAttribute('model', []);
+$model->addDependency('Car', $carModels);
+$model->addDependency('Motorcycle', $motorcycleModels);
+
+// Add attributes to the manager
+$manager = new AttributeManager();
+$manager->addAttribute($vehicleType);
+$manager->addAttribute($model);
+
+// Example data set
+$data = ['vehicle_type' => 'Car', 'model' => 'SUV'];
+
+if ($manager->validateAttributes($data)) {
+    echo "Attributes and dependencies are valid!";
+} else {
+    echo "Validation failed due to dependent attributes!";
+}
+```
+
 ## Directory Structure
 
 ```plaintext
@@ -161,6 +206,7 @@ AttriSuite/
 │   ├── AttributeManager.php
 │   ├── AttributeSet.php
 │   ├── AttributeRelationship.php
+│   ├── DependentAttribute.php
 │   ├── SelectAttribute.php
 │   ├── DateAttribute.php
 │   ├── BooleanAttribute.php
@@ -168,7 +214,8 @@ AttriSuite/
 │       └── AttributeValidatorInterface.php
 ├── tests/
 │   ├── AttributeTest.php
-│   └── AttributeRelationshipTest.php
+│   ├── AttributeRelationshipTest.php
+│   └── DependentAttributeTest.php
 ├── composer.json
 └── README.md
 ```
@@ -221,4 +268,4 @@ AttriSuite is licensed under the MIT License. See the `LICENSE` file for more in
 
 ## Contact
 
-For more information or support, please contact Nicholas Spencer at mrnicholasspencer@gmail.com.
+For more information or support, please contact Nick Spencer at mrnicholasspencer@gmail.com
