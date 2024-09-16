@@ -16,20 +16,6 @@
 - **Extensible Design**: Easily extend the library with new attribute types or validation logic.
 - **Namespace Support**: Organized under the `AttriSuite` namespace for easy integration into larger projects.
 
-## Installation
-
-Install AttriSuite using Composer:
-
-```bash
-composer require yourusername/attrisuite
-```
-
-Include the Composer autoloader in your project:
-
-```php
-require 'vendor/autoload.php';
-```
-
 ## Getting Started
 
 ### Basic Attribute Usage
