@@ -118,6 +118,7 @@ class AttributeManager {
      */
     public function addProfile(AttributeProfile $profile): bool {
         if (isset($this->attributeProfiles[$profile->getName()])) {
+            // Log the overwrite or issue a warning
             throw new \Exception("Profile with the name '{$profile->getName()}' already exists.");
         }
         $this->attributeProfiles[$profile->getName()] = $profile;

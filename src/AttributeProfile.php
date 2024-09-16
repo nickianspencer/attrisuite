@@ -50,7 +50,6 @@ class AttributeProfile {
      */
     public function validate(array $data): bool {
         foreach ($this->attributes as $attribute) {
-            var_dump($attribute);
             $name = $attribute->getName();
             if (isset($data[$name]) && !$attribute->validate($data[$name])) {
                 return false;

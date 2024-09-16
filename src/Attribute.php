@@ -6,7 +6,8 @@ class Attribute implements AttributeInterface {
     protected $name;
     protected $type;
     protected $value;
-    protected $validationRules = [];
+    protected $constraints = array();
+    protected $validationRules = array();
 
     /**
      * Constructor for the Attribute Class.
