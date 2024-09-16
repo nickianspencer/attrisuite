@@ -5,6 +5,8 @@ namespace AttriSuite;
 class Attribute implements AttributeInterface {
     protected $name;
     protected $type;
+    protected $value;
+    protected $validationRules = [];
 
     /**
      * Constructor for the Attribute Class.
@@ -36,26 +38,45 @@ class Attribute implements AttributeInterface {
     }
 
     /**
+     * Get the current value of the attribute.
+     * 
+     * @return mixed
+     */
+    public function getValue() {
+        return $this->value;
+    }
+
+    /**
+     * Set the value of the attribute.
+     * 
+     * @param mixed $value
+     */
+    public function setValue($value) {
+        $this->value = $value;
+    }
+
+    /**
      * Validate the value of the attribute based on its type.
      * 
      * @param mixed $value
      * @return bool
      */
     public function validate($value): bool {
-        // Basic validation logic depending on type
-        switch ($this->type) {
-            case 'text':
-                return is_string($value);
-            case 'number':
-                return is_numeric($value);
-            case 'boolean':
-                return is_bool($value);
-            case 'select':
-                return is_string( $value );
-            case 'multiselect':
-                return is_array( $value );
-            default:
+        // Implement validation logic based on type and custom rules
+        foreach ($this->validationRules as $rule) {
+            if (!$rule($value)) {
                 return false;
+            }
         }
+        return true;
+    }
+
+        /**
+     * Add a custom validation rule.
+     *
+     * @param callable $rule
+     */
+    public function addValidationRule(callable $rule) {
+        $this->validationRules[] = $rule;
     }
 }

@@ -1,6 +1,6 @@
 # AttriSuite
 
-**AttriSuite** is a flexible and powerful PHP library designed for managing product attributes in applications such as Product Information Management (PIM) systems. It provides an extensible framework for handling various types of attributes, attribute sets, complex validation logic, and sophisticated relationships between attributes, including nested or dependent attributes.
+**AttriSuite** is a flexible and powerful PHP library designed for managing product attributes in applications such as Product Information Management (PIM) systems. It provides an extensible framework for handling various types of attributes, attribute sets, complex validation logic, attribute relationships, dependent attributes, and attribute profiles.
 
 ## Features
 
@@ -9,8 +9,23 @@
 - **Custom Validation**: Support for custom validation rules to ensure data integrity.
 - **Attribute Relationships**: Define relationships between attributes, allowing for dynamic validation rules based on attribute values.
 - **Dependent Attributes**: Define attributes whose options or validations depend on the values of other attributes, enabling dynamic and contextual data management.
-- **Extensible Design**: Easily extend the library with new attribute types or validation logic.
+- **Attribute Profiles**: Group multiple attributes into profiles, making it easy to apply consistent attribute groups to different entities or scenarios.
+- **Extensible Design**: Easily extend the library with new attribute types, validation logic, or profile structures.
 - **Namespace Support**: Organized under the `AttriSuite` namespace for easy integration into larger projects.
+
+## Installation
+
+Install AttriSuite using Composer:
+
+```bash
+composer require nickianspencer/attrisuite
+```
+
+Include the Composer autoloader in your project:
+
+```php
+require 'vendor/autoload.php';
+```
 
 ## Getting Started
 
@@ -159,12 +174,11 @@ $vehicleType = new SelectAttribute('vehicle_type', ['Car', 'Motorcycle']);
 $carModels = new SelectAttribute('model', ['Sedan', 'SUV', 'Coupe']);
 $motorcycleModels = new SelectAttribute('model', ['Sport', 'Cruiser']);
 
-// Define the dependent attribute
 $model = new DependentAttribute('model', []);
+$model->setParentAttributeName('vehicle_type');
 $model->addDependency('Car', $carModels);
 $model->addDependency('Motorcycle', $motorcycleModels);
 
-// Add attributes to the manager
 $manager = new AttributeManager();
 $manager->addAttribute($vehicleType);
 $manager->addAttribute($model);
@@ -179,6 +193,78 @@ if ($manager->validateAttributes($data)) {
 }
 ```
 
+### **Profile Management**
+
+**AttriSuite** includes robust profile management features that allow you to group multiple attributes into profiles, making it easy to apply consistent attribute groups to different entities or scenarios. Profiles are uniquely identified by their name, but to prevent accidental overwriting of profiles with the same name, **AttriSuite** includes safeguards.
+
+#### **Adding Profiles**
+
+When adding a new profile, the `addProfile` method checks if a profile with the same name already exists. If it does, an exception is thrown to prevent accidental overwriting, ensuring that your profiles remain distinct and no data is unintentionally lost.
+
+##### **Example: Adding a Profile**
+
+```php
+use AttriSuite\Attribute;
+use AttriSuite\AttributeProfile;
+use AttriSuite\AttributeManager;
+
+// Define attributes
+$brand = new Attribute('brand', 'text');
+$model = new Attribute('model', 'text');
+$warranty = new Attribute('warranty', 'text');
+
+// Create a profile for electronics
+$electronicsProfile = new AttributeProfile('Electronics');
+$electronicsProfile->addAttribute($brand);
+$electronicsProfile->addAttribute($model);
+$electronicsProfile->addAttribute($warranty);
+
+$manager = new AttributeManager();
+$manager->addProfile($electronicsProfile);
+
+try {
+    // Attempting to add another profile with the same name will throw an exception
+    $duplicateProfile = new AttributeProfile('Electronics');
+    $manager->addProfile($duplicateProfile); // This will throw an exception
+} catch (\Exception $e) {
+    echo "Error: " . $e->getMessage(); // Output: Error: Profile with the name 'Electronics' already exists.
+}
+```
+
+#### **Preventing Overwrites**
+
+To prevent profiles with the same name from overwriting each other, **AttriSuite** will:
+
+1. **Check for Existing Profiles:** Before adding a new profile, the `addProfile` method checks if a profile with the same name already exists.
+2. **Throw an Exception:** If a duplicate name is detected, an exception is thrown, allowing you to handle the situation appropriately in your application.
+3. **Optional Unique Identifiers:** For advanced scenarios, you can implement unique identifiers for profiles, allowing for profiles with the same name but still distinguishing them.
+
+##### **Handling Exceptions**
+
+When an exception is thrown due to a duplicate profile name, you can catch and handle it as needed in your application.
+
+```php
+try {
+    $manager->addProfile($duplicateProfile);
+} catch (\Exception $e) {
+    // Handle the exception, such as logging the error or notifying the user
+    echo "Profile could not be added: " . $e->getMessage();
+}
+```
+
+#### **Retrieving Profiles**
+
+You can retrieve and work with profiles by their name, ensuring that the correct profile is used in your operations.
+
+```php
+$retrievedProfile = $manager->getProfile('Electronics');
+if ($retrievedProfile) {
+    echo "Profile retrieved: " . $retrievedProfile->getName();
+} else {
+    echo "Profile not found.";
+}
+```
+
 ## Directory Structure
 
 ```plaintext
@@ -187,6 +273,7 @@ AttriSuite/
 │   ├── Attribute.php
 │   ├── AttributeManager.php
 │   ├── AttributeSet.php
+│   ├── AttributeProfile.php
 │   ├── AttributeRelationship.php
 │   ├── DependentAttribute.php
 │   ├── SelectAttribute.php
@@ -197,7 +284,9 @@ AttriSuite/
 ├── tests/
 │   ├── AttributeTest.php
 │   ├── AttributeRelationshipTest.php
-│   └── DependentAttributeTest.php
+│   ├── DependentAttributeTest.php
+│   ├── AttributeSetTest.php
+│   └── AttributeProfileTest.php
 ├── composer.json
 └── README.md
 ```
@@ -221,6 +310,8 @@ use AttriSuite\CustomAttribute;
 
 $customAttribute = new CustomAttribute('custom_field', 'text');
 $customAttribute->addValidationRule(function ($value) {
+
+
     return strlen($value) > 5;
 });
 
@@ -250,4 +341,4 @@ AttriSuite is licensed under the MIT License. See the `LICENSE` file for more in
 
 ## Contact
 
-For more information or support, please contact Nick Spencer at mrnicholasspencer@gmail.com
+For more information or support, please contact Nicholas Spencer at mrnicholasspencer@gmail.com.
