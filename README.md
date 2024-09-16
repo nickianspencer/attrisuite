@@ -1,7 +1,3 @@
-### Updated README for **AttriSuite**
-
----
-
 # AttriSuite
 
 **AttriSuite** is a flexible and powerful PHP library designed for managing product attributes in applications such as Product Information Management (PIM) systems. It provides an extensible framework for handling various types of attributes, attribute sets, complex validation logic, and sophisticated relationships between attributes, including nested or dependent attributes.
